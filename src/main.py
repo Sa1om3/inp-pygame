@@ -190,7 +190,7 @@ class Game:
         self.font = pygame.font.Font(None, 30)
         self.screen = pygame.display.set_mode( (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) ) 
         self.clock = pygame.time.Clock()
-        self.bg = pygame.image.load("res/bg-small.png")
+        self.bg = pygame.image.load("res/hintergrund schildkröte.png")
         self.bg_x = 0
 
     
