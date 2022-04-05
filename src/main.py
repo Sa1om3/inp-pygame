@@ -177,8 +177,10 @@ class PlayerSprite(BaseSprite):
 
 class GroundSprite(BaseSprite):
     def __init__(self, game, x, y):
-        super().__init__(game, x, y, groups=game.ground, layer=0)
-        self.image.fill(Config.GREEN)
+        img_data = {
+            'spritesheet': Spritesheet("res/player.png"),
+        }
+        super().__init__(game, x, y, groups=game.ground, layer=0, **img_data)
 
 
 class Game:
