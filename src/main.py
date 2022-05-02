@@ -2,6 +2,27 @@ import pygame
 
 import sys
 
+
+
+# class Block(pygame.sprite.Sprite):
+
+#     # Constructor. Pass in the color of the block,
+#     # and its x and y position
+#     def __init__(self, color, width, height):
+#        # Call the parent class (Sprite) constructor
+#        pygame.sprite.Sprite.__init__(self)
+
+#        # Create an image of the block, and fill it with a color.
+#        # This could also be an image loaded from the disk.
+#        self.image = pygame.Surface([width, height])
+#        self.image.fill(color)
+
+#        # Fetch the rectangle object that has the dimensions of the image
+#        # Update the position of this object by setting the values of rect.x and rect.y
+#        self.rect = self.image.get_rect()
+
+
+
 class Spritesheet:
     def __init__(self, file):
         self.sheet = pygame.image.load(file).convert()
@@ -16,8 +37,29 @@ class Spritesheet:
 
 class Config:
     TILE_SIZE = 32
-    WINDOW_WIDTH = TILE_SIZE * 20
-    WINDOW_HEIGHT = TILE_SIZE * 10
+    #Monitor Extern
+    BG_HEIGHT = 1759
+    BG_WIDTH = 3508
+    #Monitor Laptop
+    BG_HEIGHT = 285
+    BG_WIDTH = 567
+    
+
+    VERTICAL_TILES = 40
+    HORIZONTAL_TITLES = 60
+    
+    VERTICAL_TILES = BG_HEIGHT / TILE_SIZE
+    HORIZONTAL_TITLES = BG_WIDTH / TILE_SIZE
+    
+    # print(VERTICAL_TILES)
+    # print(HORIZONTAL_TITLES)
+
+    # WINDOW_WIDTH = TILE_SIZE * HORIZONTAL_TITLES
+    # WINDOW_HEIGHT = TILE_SIZE * VERTICAL_TILES
+
+    WINDOW_WIDTH = BG_WIDTH
+    WINDOW_HEIGHT = BG_HEIGHT
+
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
@@ -27,6 +69,20 @@ class Config:
     MAX_GRAVITY = -3
     BG_SPEED = 0.3
 
+# """Original 
+# class Config:
+#     TILE_SIZE = 32
+#     WINDOW_WIDTH = TILE_SIZE * 20
+#     WINDOW_HEIGHT = TILE_SIZE * 10
+#     BLACK = (0, 0, 0)
+#     RED = (255, 0, 0)
+#     GREEN = (0, 255, 0)
+#     GREY = (128, 128, 128)
+#     WHITE = (255, 255, 255)
+#     FPS = 30
+#     MAX_GRAVITY = -3
+#     BG_SPEED = 0.3
+# """
 
 
 class BaseSprite(pygame.sprite.Sprite):
@@ -64,7 +120,7 @@ class BaseSprite(pygame.sprite.Sprite):
 class PlayerSprite(BaseSprite):
     def __init__(self, game, x, y, **kwargs):
         img_data = {
-            'spritesheet': Spritesheet("res/player.png"),
+            'spritesheet': Spritesheet("res/turttle_cropped.png"),
         }
         super().__init__(game, x, y, groups=game.players, layer=1, **img_data, **kwargs)
         self.y_velocity = Config.MAX_GRAVITY
@@ -72,7 +128,7 @@ class PlayerSprite(BaseSprite):
         self.standing = False
         self.color = Config.RED
         self.anim_counter = 0
-        self.animation_frames = [0, 32]
+        self.animation_frames = [0]
         self.current_frame = 0
         self.animation_duration = 30
         self.jump_force = 10
@@ -178,10 +234,17 @@ class PlayerSprite(BaseSprite):
 class GroundSprite(BaseSprite):
     def __init__(self, game, x, y):
         img_data = {
-            'spritesheet': Spritesheet("res/player.png"),
+            'spritesheet': Spritesheet("res/hinderniss_schildkroete_cropped.png"),
         }
         super().__init__(game, x, y, groups=game.ground, layer=0, **img_data)
 
+
+class StoneSprite(BaseSprite):
+    def __init__(self, game, x, y):
+        img_data = {
+            'spritesheet': Spritesheet("res/stone.png"),
+        }
+        super().__init__(game, x, y, groups=game.ground, layer=0, **img_data)
 
 class Game:
     def __init__(self):
@@ -190,10 +253,25 @@ class Game:
         self.font = pygame.font.Font(None, 30)
         self.screen = pygame.display.set_mode( (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) ) 
         self.clock = pygame.time.Clock()
-        self.bg = pygame.image.load("res/hintergrund_schildkroete.png")
+        self.bg = pygame.image.load("res/hintergrund_schildkroete_2.png")
         self.bg_x = 0
+        
+        """
+        
+        #pygame.display.init()
+        #self.screen = pygame.display.set_mode(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT)
+        #self.screen = pygame.display.set_mode( (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) )
+        self.clock = pygame.time.Clock()
+        picture = pygame.image.load("res/game over.png")
+        picture = pygame.transform.scale(picture, (1280, 720))
+        #self.go = ("res/game over.png", (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT))
+        # self.go = load_and_scale_img("res/game over.png", (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT))
+        self.bg_x = 0
+        self.gameover= False
+        self.playing= False
+        self.waiting= False
+        """
 
-    
     def load_map(self, mapfile):
         with open(mapfile, "r") as f:
             for (y, lines) in enumerate(f.readlines()):
@@ -202,6 +280,8 @@ class Game:
                         GroundSprite(self, x, y)
                     if c == "p":
                         self.player = PlayerSprite(self, x, y)
+                    if c == "x":
+                        StoneSprite(self, x, y)
 
     def new(self):
         self.playing = True
@@ -211,6 +291,32 @@ class Game:
         self.players = pygame.sprite.LayeredUpdates()
 
         self.load_map("maps/level-01.txt")
+
+    def new_2(self):
+        self.playing = True
+        self.bg = pygame.image.load("res/hintergrund einhorn.png")
+        
+        self.player = pygame.image.load("res/Einhorn.png")
+        self.ground = pygame.image.load("res/haaag.png")
+        
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.ground = pygame.sprite.LayeredUpdates()
+        self.players = pygame.sprite.LayeredUpdates()
+
+        self.load_map("maps/level-02.txt")
+        BG_HEIGHT = 400
+        BG_WIDTH = 566
+
+        
+
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.ground = pygame.sprite.LayeredUpdates()
+        self.players = pygame.sprite.LayeredUpdates()
+
+        self.load_map("maps/level-02.txt")
+        
+        
+
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -236,13 +342,42 @@ class Game:
             self.update()
             self.draw()
             self.clock.tick(Config.FPS)
+    
+    def welcome(self):
+        counter = 0
+        
+        while True:
+            
+
+            #self.scr
+            self.screen.fill(Config.RED)
+            #self.screen = pygame.display.set_mode(800,600)
+            #display_screen = self.screen.fill(Config.RED)
+            display_text = self.font.render('Press Space to Start...', False, (0, 0, 0))
+            self.screen.blit(display_text, (200, 50))
+            counter_text = self.font.render(f'{counter}', False, (255, 255, 255))
+            pygame.display.flip()
+            self.clock.tick(Config.FPS)
+            counter += 1
+
+            pygame.event.get()
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                break
 
     
 def main():
     g = Game()
+
+    g.welcome()
+
     g.new()
 
     g.game_loop()
 
+    g.new_2()
+
+    g.game_loop()
+    
     pygame.quit()
     sys.exit()
